@@ -16,6 +16,7 @@ import { icons } from "../../../constants/icons";
 import images from "../../../constants/images";
 import "../../../global.css";
 import { formatCurrency } from "../../../libs/utils";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -23,8 +24,9 @@ export default function Index() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView className="flex-1 p-5 bg-background">
+    <SafeAreaView className="flex-1 p-4.5 bg-background">
       <View className="home-header">
         <View className="home-user">
           <Image source={images.avatar} className="home-avatar" />
@@ -58,17 +60,30 @@ export default function Index() {
           }
         />
       </View>
-      <View>
+      <View className="flex-1">
         <ListHeading title="All Subscriptions" />
-        <SubscriptionCard
-          {...HOME_SUBSCRIPTIONS[0]}
-          expanded={expandedSubscriptionId == HOME_SUBSCRIPTIONS[0].id}
-          onPress={() =>
-            setExpandedSubscriptionId((currentId) =>
-              currentId === HOME_SUBSCRIPTIONS[0].id
-                ? null
-                : HOME_SUBSCRIPTIONS[0].id,
-            )
+        <FlatList
+          data={HOME_SUBSCRIPTIONS}
+          contentContainerStyle={{
+            paddingBottom: insets.bottom,
+          }}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <SubscriptionCard
+              {...item}
+              expanded={expandedSubscriptionId == item.id}
+              onPress={() =>
+                setExpandedSubscriptionId((currentId) =>
+                  currentId === item.id ? null : item.id,
+                )
+              }
+            />
+          )}
+          extraData={expandedSubscriptionId}
+          ItemSeparatorComponent={() => <View className="h-4" />}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text className="home-empty-state">No subscriptions found</Text>
           }
         />
       </View>
